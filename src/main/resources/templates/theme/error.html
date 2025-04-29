@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<th:block th:insert="~{theme/upper :: headLinks}"></th:block>
+<title>Account settings</title>
+</head>
+<body>
+	<div id="layoutError">
+		<div id="layoutError_content">
+			<main>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-lg-6">
+							<div class="text-center mt-4">
+								<h1 class="display-1">[[${statusCode}]]</h1>
+								<p class="lead">[[${errorTitle}]]</p>
+								<p>[[${errorMessage}]]</p>
+								
+								
+								<div class="d-flex justify-content-center align-items-center">
+								    
+								    
+								    <ol class="breadcrumb mb-4">
+								        
+								    </ol>
+								</div>
+
+								
+                                    
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="layoutError_footer">
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <div th:replace="~{theme/lower :: footerlinks}"></div>
+    </body>
+</html>

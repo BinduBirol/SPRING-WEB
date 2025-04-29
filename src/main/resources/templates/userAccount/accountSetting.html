@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<th:block th:insert="~{theme/upper :: headLinks}"></th:block>
+<title>Account settings</title>
+</head>
+<body class="sb-nav-fixed">
+	<nav th:replace="~{theme/upper :: upperNav}"></nav>
+	<div id="layoutSidenav">
+		<div id="layoutSidenav_nav">
+
+			<nav th:replace="~{theme/sidenav :: sidenav}"></nav>
+
+		</div>
+		<div id="layoutSidenav_content">
+			<main>
+				<div class="container-fluid px-4">
+					<h1 class="mt-4">User account settings</h1>
+					<ol class="breadcrumb mb-4">
+
+					</ol>
+
+
+					<div class="">
+						<div class="card shadow">
+	<div class="card-body">
+		<form th:action="@{/user/account/settings/submit}" method="post" enctype="multipart/form-data">
+			<div class="row mb-4 align-items-stretch ">
+				<!-- Profile Image Section -->
+				<div class="col-md-3 d-flex flex-column justify-content-center align-items-center ">
+					<div class="d-flex flex-column align-items-center h-100 justify-content-center">
+						
+						
+						<img  th:src="@{'/user/profile-image/' + ${user.id}}" 
+							 class="rounded-circle img-thumbnail mb-3 shadow-md border"
+							 style="width: 140px; height: 140px; object-fit: cover;">
+							 
+							 
+						<label for="profileImage" class="form-label">Change Image</label>
+						<input class="form-control" type="file" id="profileImage" name="imageMultipart">
+					</div>
+				</div>
+
+				<!-- Input Fields Section -->
+				<div class="col-md-9">
+					<div class="row">
+						<!-- Username -->
+						<div class="col-md-6 mb-3">
+							<label for="username" class="form-label">Username</label>
+							<input type="text" class="form-control" id="username" name="username" th:value="${user.username}" readonly>
+						</div>
+
+						<!-- Email -->
+						<div class="col-md-6 mb-3">
+							<label for="email" class="form-label">Email Address</label>
+							<input type="email" class="form-control" id="email" name="email" th:value="${user.email}" required>
+						</div>
+
+						<!-- First Name -->
+						<div class="col-md-6 mb-3">
+							<label for="firstName" class="form-label">First Name</label>
+							<input type="text" class="form-control" id="firstName" name="firstName" th:value="${user.firstName}" required>
+						</div>
+
+						<!-- Last Name -->
+						<div class="col-md-6 mb-3">
+							<label for="lastName" class="form-label">Last Name</label>
+							<input type="text" class="form-control" id="lastName" name="lastName" th:value="${user.lastName}" required>
+						</div>
+
+						<!-- Role -->
+						<div class="col-md-6 mb-3">
+							<label for="role" class="form-label">Role</label>
+							<input type="text" class="form-control" id="role" name="role" th:value="${user.role}" readonly>
+						</div>
+
+						<!-- Two-Factor Enabled -->
+						<div class="col-md-6 mb-3 d-flex align-items-center">
+							<div class="form-check mt-4">
+								<input class="form-check-input" type="checkbox" th:checked="${user.isTwoFactorEnabled}" id="twoFactorEnabled" name="twoFactorEnabled">
+								<label class="form-check-label" for="twoFactorEnabled">
+									Enable Two-Factor Authentication
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Submit Button -->
+			<div class="text-end">
+				<button type="submit" class="btn btn-success px-4" id="submitBtn" disabled="disabled">Update Profile</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+					</div>
+
+
+
+				</div>
+			</main>
+			<footer class="py-4 bg-light mt-auto">
+				<div class="container-fluid px-4">
+					<div class="d-flex align-items-center justify-content-between small">
+						<div class="text-muted">Copyright &copy; Your Website 2023</div>
+						<div>
+							<a href="#">Privacy Policy</a>
+							&middot;
+							<a href="#">Terms &amp; Conditions</a>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+</body>
+
+<div th:replace="~{theme/lower :: footerlinks}"></div>
+
+<script>
+    $(document).ready(function() {
+        $('form input').change(function() {
+            $('#submitBtn').prop('disabled', false);
+        });
+    });
+</script>
+</html>

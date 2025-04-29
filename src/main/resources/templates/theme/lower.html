@@ -1,0 +1,51 @@
+<div th:fragment="footerlinks">
+	<script th:src="@{/assets/js/scripts.js}"></script>
+
+
+
+
+	<script th:if="${error}" type="text/javascript">
+	    Swal.fire({
+	        title: "Error occurred!",
+	        html: "[[${error}]]",
+	        icon: "error",
+	        confirmButtonText:"<i class='fa fa-thumbs-up'></i> I understand!"
+	    });
+	</script>
+
+	<script th:if="${success}" type="text/javascript">
+	    Swal.fire({
+	        title: "Request successful!",
+	        html: "[[${success}]]",
+	        icon: "success",
+	        confirmButtonText:"<i class='fa fa-thumbs-up'></i> Close"
+	    });
+	</script>
+
+	<script>
+	  $(document).ready(function () {
+	    var currentPath = window.location.pathname;
+	
+	    $('.nav-link').each(function () {
+	      var $link = $(this);
+	      if ($link.attr('href') === currentPath) {
+	        $link.addClass('active shadow-lg');
+	
+	        // Expand parent collapse div (e.g., #collapseAccount)
+	        var $collapseDiv = $link.closest('.collapse');
+	        if ($collapseDiv.length) {
+	          $collapseDiv.addClass('show');
+	
+	          // Also set aria-expanded="true" on the toggle link
+	          var collapseId = '#' + $collapseDiv.attr('id');
+	          var $toggleLink = $('a[data-bs-toggle="collapse"][data-bs-target="' + collapseId + '"]');
+	          $toggleLink.attr('aria-expanded', 'true');
+	        }
+	      }
+	    });
+	  });
+	</script>
+
+
+
+</div>
