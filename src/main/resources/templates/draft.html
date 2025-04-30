@@ -1,78 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head >
-	<link th:href="@{/assets/css/styles.css}" rel="stylesheet" />
-</head>
-<body class="bg-primary">
-	<div id="layoutAuthentication">
-		<div id="layoutAuthentication_content">
-			<main>
-				<div class="container">
-					<div class="row justify-content-center">
-						<div class="col-lg-5">
-							<div class="card shadow-lg border-0 rounded-lg mt-5">
-								<div class="card-header">
-									<h3 class="text-center font-weight-light my-4">Login</h3>
-								</div>
-								<div class="card-body">
-									<form th:action="@{/login}" method="post">
-										<div class="form-floating mb-3">
-											<input class="form-control" id="inputEmail" type="text" name="username"  required /> <label for="inputEmail">Username/ Email address</label>
-										</div>
-										<div class="form-floating mb-3">
-											<input class="form-control" id="inputPassword" type="password" name="password"  required /> <label for="inputPassword">Password</label>
-										</div>
-										<div class="form-check mb-3">
-											<input class="form-check-input" id="inputRememberPassword" type="checkbox" value="" /> <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
-										</div>
-
-										<div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-											<a class="small" href="password.html">Forgot Password?</a> <button class="btn btn-primary" type="submit">Login</button>
-										</div>
-
-
-
-									</form>
-								</div>
-								<div class="card-footer text-center py-3">
-									<div class="small">
-										<a href="register">Need an account? Sign up!</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+<nav th:fragment="sidenav" class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+	<div class="sb-sidenav-menu">
+		<div class="nav">
+			<div class="sb-sidenav-menu-heading">Home</div>
+			<a class="nav-link" th:href="@{/user/home}">
+				<div class="sb-nav-link-icon">
+					<i class="fas fa-tachometer-alt"></i>
+				</div> Dashboard
+			</a>
+			<div class="sb-sidenav-menu-heading">Settings</div>
+			<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAccount" aria-expanded="false" aria-controls="collapseLayouts">
+				<div class="sb-nav-link-icon">
+					<i class="fas fa-user-cog"></i>
+				</div> Account
+				<div class="sb-sidenav-collapse-arrow">
+					<i class="fas fa-angle-down"></i>
 				</div>
-			</main>
+			</a>
+			<div class="collapse" id="collapseAccount" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+				<nav class="sb-sidenav-menu-nested nav">
+					<a class="nav-link" th:href="@{/user/account/settings}">Account settings</a> <a class="nav-link" th:href="@{/user/password/change}">Change password</a>
+				</nav>
+			</div>
+
+
+			<div class="sb-sidenav-menu-heading">Actions</div>
+			 <a class="nav-link" href="#" onclick="showLogoutConfirm()">
+				<div class="sb-nav-link-icon">
+					<i class="fas fa-sign-out"></i>
+				</div> Log-Out
+			</a>
 		</div>
-		<div id="layoutAuthentication_footer">
-			<footer class="py-4 bg-light mt-auto">
-				<div class="container-fluid px-4">
-					<div class="d-flex align-items-center justify-content-between small">
-						<div class="text-muted">Copyright &copy; Your Website 2023</div>
-						<div>
-							<a href="#">Privacy Policy</a> &middot; <a href="#">Terms &amp; Conditions</a>
-						</div>
-					</div>
-				</div>
-			</footer>
+	</div>
+	<div class="sb-sidenav-footer">
+		<div class="row align-items-center">
+
+			<!-- Fallback Icon if no image -->
+			<div th:unless="${session.user.image}" class="col-auto d-flex align-items-center justify-content-center" th:classappend="${session.user.role.textColorClass}">
+				<i class="fa-2x" th:classappend="${session.user.role.iconClass}"></i>
+			</div>
+
+			<!-- Profile Image -->
+			<div th:if="${session.user.image}" class="col-auto d-flex align-items-center">
+				<img th:src="@{'/user/profile-image/' + ${session.user.id}}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+			</div>
+
+			<!-- User Info -->
+			<div class="col p-0" style="max-width: 150px;">
+				<div class="text-truncate">[[${session.user.fullName}]]</div>
+				<div class="small text-truncate">[[${session.user.email}]]</div>
+			</div>
 		</div>
+
+
 	</div>
 
 
-	<div th:replace="~{theme/lower :: footerlinks}"></div>
+	<script>
+  function showLogoutConfirm() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You want to log out?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'No, stay logged in',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Perform logout action here (e.g., redirect, clear session, etc.)
+        window.location.href = contextPath+'/logout'; // Replace with your logout URL or logic
+      }
+    });
+  }
+</script>
 
-</body>
-</html>
 
 
 
 
 
 
-
-
-
-
-
-
+</nav>

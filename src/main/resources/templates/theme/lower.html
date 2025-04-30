@@ -1,5 +1,48 @@
+<div th:fragment="staticFooter">
+
+<!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" th:href="@{/logout}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
 <div th:fragment="footerlinks">
-	<script th:src="@{/assets/js/scripts.js}"></script>
+	
+	
+	<!-- Bootstrap core JavaScript-->
+    <script th:src="@{/assets/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/assets/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/assets/js/sb-admin-2.min.js}"></script>
+
+    <!-- Page level plugins -->
+    <script th:src="@{/assets/sweetalert/sweetalert2.all.min.js}"></script>
 
 
 
@@ -23,28 +66,43 @@
 	</script>
 
 	<script>
-	  $(document).ready(function () {
-	    var currentPath = window.location.pathname;
+	    $(document).ready(function () {
+	        const currentPath = window.location.pathname;
 	
-	    $('.nav-link').each(function () {
-	      var $link = $(this);
-	      if ($link.attr('href') === currentPath) {
-	        $link.addClass('active shadow-lg');
+	        // Highlight regular nav-items (no collapsible content)
+	        $(".nav-item > .nav-link").each(function () {
+	            const $link = $(this);
+	            const href = $link.attr("href");
 	
-	        // Expand parent collapse div (e.g., #collapseAccount)
-	        var $collapseDiv = $link.closest('.collapse');
-	        if ($collapseDiv.length) {
-	          $collapseDiv.addClass('show');
+	            if (href && currentPath === href) {
+	                $link.addClass("active");
+	                $link.closest(".nav-item").addClass("active");
+	            }
+	        });
 	
-	          // Also set aria-expanded="true" on the toggle link
-	          var collapseId = '#' + $collapseDiv.attr('id');
-	          var $toggleLink = $('a[data-bs-toggle="collapse"][data-bs-target="' + collapseId + '"]');
-	          $toggleLink.attr('aria-expanded', 'true');
-	        }
-	      }
+	        // Highlight collapse-inner items
+	        $(".collapse-item").each(function () {
+	            const $item = $(this);
+	            const href = $item.attr("href");
+	
+	            if (href && currentPath.endsWith(href)) {
+	                $item.addClass("active");
+	
+	                const $collapseDiv = $item.closest(".collapse");
+	                $collapseDiv.addClass("show");
+	
+	                const $navLink = $collapseDiv.siblings(".nav-link");
+	                $navLink.removeClass("collapsed").addClass("active");
+	
+	                const $parentNavItem = $collapseDiv.closest(".nav-item");
+	                $parentNavItem.addClass("active");
+	            }
+	        });
 	    });
-	  });
 	</script>
+
+
+
 
 
 

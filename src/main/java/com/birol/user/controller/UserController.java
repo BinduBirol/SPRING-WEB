@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -90,15 +92,24 @@ public class UserController {
 	@GetMapping("/profile-image/{userId}")
 	public ResponseEntity<byte[]> getUserProfileImage(@PathVariable Long userId) {
 	    Optional<UserEntity> optionalUser = userRepository.findById(userId);
-	    
+
+	    byte[] imageBytes = null;
+
 	    if (optionalUser.isPresent() && optionalUser.get().getImage() != null) {
-	        byte[] image = optionalUser.get().getImage();
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.setContentType(MediaType.IMAGE_JPEG); // or IMAGE_PNG depending on your images
-	        return new ResponseEntity<>(image, headers, HttpStatus.OK);
+	        imageBytes = optionalUser.get().getImage();
 	    } else {
-	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	        try {
+	            ClassPathResource imgFile = new ClassPathResource("static/assets/img/user-avater.jpg");
+	            imageBytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
+	        } catch (IOException e) {
+	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
 	    }
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.IMAGE_JPEG); // adjust based on file type
+	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
 	}
+
 
 }
