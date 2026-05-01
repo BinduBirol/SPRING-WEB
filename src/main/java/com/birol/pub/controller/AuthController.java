@@ -11,75 +11,82 @@ import com.birol.user.entity.UserEntity;
 import com.birol.user.entity.UserRoles;
 import com.birol.user.repo.UserRepository;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("")
 public class AuthController {
 
 	@Autowired
 	private UserRepository userRepository;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	// ------------------------
+	// Login Page
+	// ------------------------
 	@GetMapping("/login")
-    public String showLoginForm(Model model, RedirectAttributes redirectAttributes, HttpSession session, HttpServletRequest request) {
-		
+	public String loginPage(Model model, HttpSession session) {
+
 		String errorMessage = (String) session.getAttribute("loginError");
-	    if (errorMessage != null) {
-	        model.addAttribute("error", errorMessage);
-	        session.removeAttribute("loginError");
-	    }
-        return "public/auth/login"; // Path to login.html
-    }
 
+		if (errorMessage != null) {
+			model.addAttribute("error", errorMessage);
+			session.removeAttribute("loginError");
+		}
+
+		return "public/auth/login";
+	}
+
+	// ------------------------
+	// Register Page
+	// ------------------------
 	@GetMapping("/register")
-	public String showRegistrationForm() {
-		return "public/auth/register"; // Path to registration.html
+	public String registerPage() {
+		return "public/auth/register";
 	}
 
-	// Forgot password page
+	// ------------------------
+	// Forgot Password Page
+	// ------------------------
 	@GetMapping("/forgot-password")
-	public String showForgotPasswordForm() {
-		return "public/auth/forgot-password"; // Path to forgot-password.html
+	public String forgotPasswordPage() {
+		return "public/auth/forgot-password";
 	}
 
-	// Handle user registration with UserEntity
+	// ------------------------
+	// Register User
+	// ------------------------
 	@PostMapping("/register")
 	public String registerUser(@ModelAttribute UserEntity user, RedirectAttributes redirectAttributes) {
 
 		try {
-			// Check if the username already exists
+			// Check existing user
 			if (userRepository.findByUsername(user.getUsername()).isPresent()) {
 				redirectAttributes.addFlashAttribute("error", "User already exists");
 				return "redirect:/register";
 			}
 
-			// Encode the user's password
+			// Encrypt password
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			
+
+			// Ensure username consistency
 			user.setUsername(user.getEmail());
 
-			// Set the default role (if necessary, otherwise you can also allow the user to
-			// select a role)
+			// Default role assignment
 			if (user.getRole() == null) {
-				user.setRole(UserRoles.USER); // Default to USER if no role is set
+				user.setRole(UserRoles.USER);
 			}
 
-			// Save the user to the database
 			userRepository.save(user);
 
 			redirectAttributes.addFlashAttribute("success", "Registration successful! You can now log in.");
 
-			// Redirect to the login page after successful registration
 			return "redirect:/login";
-		} catch (Exception e) {			
-			redirectAttributes.addFlashAttribute("error", e.getCause());
-			e.printStackTrace();
+
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Registration failed. Please try again.");
+			return "redirect:/register";
 		}
-
-		return "redirect:/register";
 	}
-
 }

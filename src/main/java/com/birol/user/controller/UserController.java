@@ -5,10 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -19,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.birol.user.entity.UserEntity;
 import com.birol.user.repo.UserRepository;
+
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -28,88 +26,99 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
+	// ------------------------
+	// Helper method
+	// ------------------------
+	private UserEntity getLoggedInUser(Authentication auth) {
+		User principal = (User) auth.getPrincipal();
+		return userRepository.findByUsername(principal.getUsername())
+				.orElseThrow(() -> new RuntimeException("User not found"));
+	}
+
+	// ------------------------
+	// Home
+	// ------------------------
 	@GetMapping("/home")
-	public String home(Model model, HttpSession session, Authentication auth) {
-		// Get the authenticated user
-		User principal = (User) auth.getPrincipal();
-
-		return "home/userHome"; // Path to home.html
+	public String home(Model model, Authentication auth) {
+		model.addAttribute("user", getLoggedInUser(auth));
+		return "home/userHome";
 	}
 
+	// ------------------------
+	// Change Password Page
+	// ------------------------
 	@GetMapping("/password/change")
-	public String changePasswordHome(Model model, HttpSession session, Authentication auth) {
-		// Get the authenticated user
-		User principal = (User) auth.getPrincipal();
-
-		return "userAccount/changePassword"; // Path to home.html
+	public String changePassword() {
+		return "userAccount/changePassword";
 	}
 
+	// ------------------------
+	// Account Settings Page
+	// ------------------------
 	@GetMapping("/account/settings")
-	public String accountSettings(Model model, HttpSession session, Authentication auth) {
-		// Get the authenticated user
-		User principal = (User) auth.getPrincipal();
-
-		UserEntity user = userRepository.findByUsername(principal.getUsername()).get();
-
-		model.addAttribute("user", user); // Example of adding user info to session
-
-		return "userAccount/accountSetting"; // Path to home.html
+	public String accountSettings(Model model, Authentication auth) {
+		model.addAttribute("user", getLoggedInUser(auth));
+		return "userAccount/accountSetting";
 	}
 
+	// ------------------------
+	// Update Account Settings
+	// ------------------------
 	@PostMapping("/account/settings/submit")
-	public String accountSettingsSubmit(Model model, HttpSession session, Authentication auth,
-			@ModelAttribute UserEntity userNew, RedirectAttributes redirectAttributes) {
+	public String updateAccountSettings(@ModelAttribute UserEntity userNew, Authentication auth, HttpSession session,
+			RedirectAttributes redirectAttributes) {
 
 		try {
+			UserEntity user = getLoggedInUser(auth);
 
-			User principal = (User) auth.getPrincipal();
-
-			UserEntity userExisting = userRepository.findByUsername(principal.getUsername()).get();
-
+			// Update image if provided
 			if (userNew.getImageMultipart() != null && !userNew.getImageMultipart().isEmpty()) {
-			    userExisting.setImage(userNew.getImageMultipart().getBytes());
+				user.setImage(userNew.getImageMultipart().getBytes());
 			}
 
-			userExisting.setFirstName(userNew.getFirstName());
-			userExisting.setLastName(userNew.getLastName());
-			userExisting.setEmail(userNew.getEmail());
-			userExisting.setIsTwoFactorEnabled(userNew.getIsTwoFactorEnabled());
+			// Update fields
+			user.setFirstName(userNew.getFirstName());
+			user.setLastName(userNew.getLastName());
+			user.setEmail(userNew.getEmail());
+			user.setIsTwoFactorEnabled(userNew.getIsTwoFactorEnabled());
 
-			userExisting = userRepository.save(userExisting);
-			
-			session.setAttribute("user", userExisting);
-			
-			redirectAttributes.addFlashAttribute("success", "Information updated!");
+			UserEntity savedUser = userRepository.save(user);
+
+			session.setAttribute("user", savedUser);
+			redirectAttributes.addFlashAttribute("success", "Information updated successfully!");
 
 		} catch (IOException e) {
-			redirectAttributes.addFlashAttribute("error", e.getMessage());
-			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("error", "Failed to update profile");
 		}
 
 		return "redirect:/user/account/settings";
 	}
-	
+
+	// ------------------------
+	// Profile Image API
+	// ------------------------
 	@GetMapping("/profile-image/{userId}")
 	public ResponseEntity<byte[]> getUserProfileImage(@PathVariable Long userId) {
-	    Optional<UserEntity> optionalUser = userRepository.findById(userId);
 
-	    byte[] imageBytes = null;
+		byte[] imageBytes;
 
-	    if (optionalUser.isPresent() && optionalUser.get().getImage() != null) {
-	        imageBytes = optionalUser.get().getImage();
-	    } else {
-	        try {
-	            ClassPathResource imgFile = new ClassPathResource("static/assets/img/user-avater.jpg");
-	            imageBytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
-	        } catch (IOException e) {
-	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	        }
-	    }
+		Optional<UserEntity> userOpt = userRepository.findById(userId);
 
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.IMAGE_JPEG); // adjust based on file type
-	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+		try {
+			if (userOpt.isPresent() && userOpt.get().getImage() != null) {
+				imageBytes = userOpt.get().getImage();
+			} else {
+				ClassPathResource imgFile = new ClassPathResource("static/assets/img/user-avater.jpg");
+				imageBytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
+			}
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.IMAGE_JPEG);
+
+			return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
-
-
 }

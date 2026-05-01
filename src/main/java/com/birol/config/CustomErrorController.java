@@ -23,7 +23,7 @@ public class CustomErrorController implements org.springframework.boot.web.servl
         model.addAttribute("errorTitle", errorTitle);
         model.addAttribute("errorMessage", errorMessage);
 
-        return "theme/error"; // points to templates/error/common.html
+        return "theme/error"; // points to templates/error/error.html
     }
 
     private String getErrorTitle(int statusCode) {
